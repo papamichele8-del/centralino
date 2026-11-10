@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Centralino Underground</title>
+<meta name="theme-color" content="#17130f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Centralino">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap">
+<style>
+:root{
+  --bg:#17130f;--card:#221c16;--line:#3a3026;--fg:#f4ece2;--mute:#a8998a;
+  --amber:#e8a33d;--green:#3fbf7f;--green-bg:#173a28;--red:#e0675a;--grey-bg:#2c2620;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100dvh;padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+main{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding-top:16px}
+h1,h2{font-family:"Space Grotesk",Inter,sans-serif;margin:0;letter-spacing:-.01em}
+h1{font-size:22px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);font-weight:600}
+[hidden]{display:none!important}
+.top{display:flex;align-items:center;gap:12px}
+.top img{width:40px;height:40px;border-radius:10px}
+.top .sub{color:var(--mute);font-size:13px}
+.top .esci{margin-left:auto;background:none;border:1px solid var(--line);color:var(--mute);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
+label{font-size:14px;color:var(--mute);display:flex;flex-direction:column;gap:6px}
+input{background:var(--bg);border:1px solid var(--line);color:var(--fg);border-radius:12px;padding:14px;font:inherit;font-size:20px;letter-spacing:.06em;width:100%}
+input:focus{outline:2px solid var(--amber);outline-offset:1px}
+.btn{border:0;border-radius:14px;padding:15px;font:inherit;font-weight:600;font-size:17px;background:var(--amber);color:#1b140c;cursor:pointer}
+.btn:disabled{opacity:.5}
+.err{color:var(--red);font-size:14px;min-height:1em}
+.ok{color:var(--green);font-size:14px}
+.pres{border:0;border-radius:22px;padding:26px 18px;display:flex;flex-direction:column;align-items:center;gap:6px;font:inherit;color:var(--fg);cursor:pointer;transition:background .2s}
+.pres.on{background:var(--green-bg);box-shadow:inset 0 0 0 2px var(--green)}
+.pres.off{background:var(--grey-bg);box-shadow:inset 0 0 0 2px var(--line)}
+.pres .stato{font-family:"Space Grotesk",sans-serif;font-size:30px;font-weight:700}
+.pres.on .stato{color:var(--green)}
+.pres .hint{color:var(--mute);font-size:14px;text-align:center}
+.dot{width:14px;height:14px;border-radius:50%;display:inline-block}
+.modo{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px}
+.calls{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.calls li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 0;border-top:1px solid var(--line)}
+.calls li:first-child{border-top:0}
+.calls .num{font-weight:600;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.calls .ora{color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums;text-align:right}
+.calls .az{color:var(--mute);font-size:13px;grid-column:1/2}
+.calls .rich{grid-column:2;grid-row:2;background:none;border:1px solid var(--line);color:var(--amber);border-radius:10px;padding:4px 10px;font:inherit;font-size:13px}
+.row{display:flex;gap:8px}
+.row input{flex:1;min-width:0}
+.row .btn{flex:none;padding:14px 18px}
+.vuoto{color:var(--mute);font-size:14px}
+.foot{color:var(--mute);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <img src="icon-192.png" alt="">
+    <div><h1>Centralino Underground</h1><div class="sub" id="chi">App collaboratori</div></div>
+    <button class="esci" id="esci" hidden>Esci</button>
+  </div>
+
+  <!-- Accesso -->
+  <form class="card" id="login" autocomplete="off">
+    <h2>Accedi</h2>
+    <label>Il tuo interno<input id="li" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="201" required></label>
+    <label>PIN<input id="lp" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" required></label>
+    <div class="err" id="lerr"></div>
+    <button class="btn" id="lbtn">Entra</button>
+    <div class="vuoto">Interno e PIN te li dà Michele.</div>
+  </form>
+
+  <!-- App -->
+  <section id="app" hidden style="display:flex;flex-direction:column;gap:16px">
+    <button class="pres off" id="pres">
+      <span class="stato" id="pstato">—</span>
+      <span class="hint" id="phint"></span>
+    </button>
+
+    <div class="card">
+      <div class="modo" id="modo"></div>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="card">
+      <h2>Chiama un cliente</h2>
+      <form class="row" id="chiama">
+        <input id="cnum" type="tel" inputmode="tel" placeholder="333 123 4567" required>
+        <button class="btn" id="cbtn">Chiama</button>
+      </form>
+      <div class="vuoto" id="cinfo">Ti chiamiamo noi e ti colleghiamo al cliente: lui vede il numero del locale.</div>
+      <div class="err" id="cerr"></div>
+    </div>
+
+    <div class="card">
+      <h2>Ultime chiamate</h2>
+      <ul class="calls" id="calls"></ul>
+    </div>
+    <div class="foot" id="agg"></div>
+  </section>
+</main>
+
+<script>
+const API = "https://sdgcghnvwnpzhxnwnbtu.supabase.co/functions/v1/interni-app";
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k,v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k,v); } catch {} },
+};
+let token = store.get("udg-token");
+let dati = null;
+
+const AZIONI = {
+  link_prenotazione: "Link prenotazione inviato",
+  link_ordine: "Link ordine inviato",
+  operatore: "Passata all'operatore",
+  operatore_non_risponde: "Operatore: nessuna risposta",
+  nessuna_scelta: "Nessuna scelta",
+  chiuso: "Locale chiuso",
+  attesa: "In attesa",
+  chiamata_uscita: "Chiamata in uscita",
+};
+
+async function api(body){
+  const r = await fetch(API, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({ errore: "Risposta non valida" }));
+  if (r.status === 401 && body.azione !== "login") { esci(); throw new Error(j.errore || "Rientra con il PIN"); }
+  if (!r.ok) throw new Error(j.errore || j.msg || "Errore");
+  return j;
+}
+
+function esci(){ token = null; store.set("udg-token", null); dati = null; mostra(); }
+
+function ora(iso){
+  const d = new Date(iso), oggi = new Date();
+  const hm = d.toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+  return d.toDateString() === oggi.toDateString() ? hm : d.toLocaleDateString("it-IT", { day:"2-digit", month:"2-digit" }) + " " + hm;
+}
+
+function mostra(){
+  const dentro = !!(token && dati);
+  $("login").hidden = dentro;
+  $("app").hidden = !dentro;
+  $("esci").hidden = !dentro;
+  if (!dentro) { $("chi").textContent = "App collaboratori"; return; }
+
+  const me = dati.me;
+  $("chi").textContent = `Interno ${me.interno}${me.nome ? " · " + me.nome : ""}`;
+  const p = $("pres");
+  p.className = "pres " + (me.presente ? "on" : "off");
+  $("pstato").textContent = me.presente ? "Presente" : "Assente";
+  $("phint").textContent = dati.modalita === "notte"
+    ? "Il centralino è in modalità Notte: nessuno riceve chiamate finché non torna Giorno."
+    : me.presente ? "Ricevi le chiamate quando un cliente preme 3. Tocca per metterti Assente."
+                  : "Non ricevi chiamate. Tocca per metterti Presente.";
+
+  $("modo").innerHTML = "";
+  const dot = document.createElement("span"); dot.className = "dot";
+  dot.style.background = dati.modalita === "notte" ? "#6b7bd6" : "var(--amber)";
+  $("modo").append(dot, document.createTextNode(dati.modalita === "notte" ? "Notte · locale chiuso" : "Giorno · locale aperto"));
+
+  const chips = $("chips"); chips.innerHTML = "";
+  for (const i of dati.interni) {
+    const c = document.createElement("span"); c.className = "chip";
+    const d = document.createElement("span"); d.className = "dot"; d.style.width = d.style.height = "10px";
+    d.style.background = i.presente ? "var(--green)" : "var(--line)";
+    c.append(d, document.createTextNode(`${i.interno}${i.nome ? " " + i.nome : ""}`));
+    chips.append(c);
+  }
+
+  $("cbtn").disabled = !dati.chiama_attivo;
+  $("cinfo").textContent = dati.chiama_attivo
+    ? "Ti chiamiamo noi e ti colleghiamo al cliente: lui vede il numero del locale."
+    : "Funzione non ancora attiva: manca la verifica del numero del locale.";
+
+  const ul = $("calls"); ul.innerHTML = "";
+  if (!dati.chiamate.length) { const li = document.createElement("li"); li.className = "vuoto"; li.textContent = "Nessuna chiamata."; ul.append(li); }
+  for (const c of dati.chiamate) {
+    const li = document.createElement("li");
+    const n = document.createElement("span"); n.className = "num"; n.textContent = c.numero || "—";
+    const o = document.createElement("span"); o.className = "ora"; o.textContent = ora(c.created_at);
+    const a = document.createElement("span"); a.className = "az";
+    a.textContent = (AZIONI[c.azione] || "In corso") + (c.interno ? ` · int. ${c.interno}` : "");
+    li.append(n, o, a);
+    if (dati.chiama_attivo && /^\+39[03]/.test(c.numero || "")) {
+      const b = document.createElement("button"); b.className = "rich"; b.textContent = "Richiama";
+      b.onclick = () => { $("cnum").value = c.numero.replace(/^\+39/, ""); $("cnum").focus(); window.scrollTo({ top: $("chiama").offsetTop - 80, behavior: "smooth" }); };
+      li.append(b);
+    }
+    ul.append(li);
+  }
+  $("agg").textContent = "Aggiornato alle " + new Date().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+}
+
+async function aggiorna(){
+  if (!token) return mostra();
+  try { dati = await api({ azione:"stato", token }); } catch (e) { console.warn(e); }
+  mostra();
+}
+
+$("login").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("lerr").textContent = ""; $("lbtn").disabled = true;
+  try {
+    const j = await api({ azione:"login", interno: $("li").value.trim(), pin: $("lp").value.trim() });
+    token = j.token; store.set("udg-token", token); dati = j; $("lp").value = "";
+    mostra();
+  } catch (err) { $("lerr").textContent = err.message; }
+  $("lbtn").disabled = false;
+});
+
+$("pres").addEventListener("click", async () => {
+  if (!dati) return;
+  const nuovo = !dati.me.presente;
+  dati.me.presente = nuovo; mostra();
+  try { dati = await api({ azione:"presenza", token, presente: nuovo }); }
+  catch (e) { dati.me.presente = !nuovo; alertInline(e.message); }
+  mostra();
+});
+
+$("chiama").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("cerr").textContent = ""; $("cerr").className = "err"; $("cbtn").disabled = true;
+  try {
+    const j = await api({ azione:"chiama", token, numero: $("cnum").value });
+    $("cerr").className = "ok"; $("cerr").textContent = j.msg; $("cnum").value = "";
+    setTimeout(aggiorna, 3000);
+  } catch (err) { $("cerr").textContent = err.message; }
+  $("cbtn").disabled = !dati?.chiama_attivo;
+});
+
+function alertInline(msg){ $("phint").textContent = msg; }
+$("esci").addEventListener("click", esci);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) aggiorna(); });
+setInterval(() => { if (!document.hidden) aggiorna(); }, 30000);
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+aggiorna();
+</script>
+</body>
+</html>
