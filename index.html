@@ -188,7 +188,8 @@ function mostra(){
   if (!dati.chiamate.length) { const li = document.createElement("li"); li.className = "vuoto"; li.textContent = "Nessuna chiamata."; ul.append(li); }
   for (const c of dati.chiamate) {
     const li = document.createElement("li");
-    const n = document.createElement("span"); n.className = "num"; n.textContent = c.numero || "—";
+    const n = document.createElement("span"); n.className = "num"; n.textContent = c.cliente || c.numero || "—";
+    if (c.cliente && c.numero) { const t = document.createElement("small"); t.style.cssText = "display:block;font-weight:400;color:var(--mute)"; t.textContent = c.numero; n.append(t); }
     const o = document.createElement("span"); o.className = "ora"; o.textContent = ora(c.created_at);
     const a = document.createElement("span"); a.className = "az";
     a.textContent = (AZIONI[c.azione] || "In corso") + (c.interno ? ` · int. ${c.interno}` : "");
